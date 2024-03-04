@@ -1,8 +1,9 @@
 window.onload = () => {
   globalThis.boardHeight = 20;
   globalThis.boardWidth = 20;
-  // globalThis.edem = ["0,1", "1,1", "2,2", "0,0", "1,0"];
-  globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"];
+  // globalThis.edem = ["4,4", "4,5", "5,5", "4,3", "6,3", "6,4", "5,6", "6,5"];
+  globalThis.edem = ["9,8", "11,8", "10,8", "3,4", "4,5", "5,5", "5,4", "5,3"];
+  // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.edemHistory = [];
   // globalThis.edem = ["0,1"];
   globalThis.population = {};
@@ -10,11 +11,16 @@ window.onload = () => {
   document.getElementById("boardHeight").value = globalThis.boardHeight;
   document.getElementById("boardWidth").value = globalThis.boardWidth;
   globalThis.edemHistory.push(globalThis.edem.sort().join(";"));
+  globalThis.lastForecast = [];
   generateBoard();
 };
 
 const updateField = (field, value) => {
   globalThis[field] = value;
+};
+
+const onlyUnique = (value, index, array) => {
+  return array.indexOf(value) === index;
 };
 
 const drawBoard = () => {
@@ -32,9 +38,10 @@ const drawBoard = () => {
       const cellObj = population[`${i},${j}`];
       cell.id = cellObj.id;
       cell.textContent = cellObj.text;
+
       cell.style.setProperty(
         "background-color",
-        cellObj.state ? "green" : "grey"
+        cellObj.state ? "green" : cellObj.isForecasted ? "blue" : "grey"
       );
     }
   }
@@ -54,18 +61,25 @@ const generateBoard = () => {
         i,
         j,
         id,
-        text: `cell(${id})`,
+        text: `(${id})`,
         state: edem.includes(`${i},${j}`),
       };
       globalThis.population[id] = cellObj;
     }
   }
+
   drawBoard();
+  iterateForecast();
 };
 
 const start = () => {
-  // globalThis.proc = setInterval(iterate, 0);
+  // globalThis.proc = setInterval(() => {
+  //   iterate();
+  //   iterateForecast();
+  // }, 0);
+
   iterate();
+  iterateForecast();
 };
 
 const stop = () => {
@@ -103,7 +117,8 @@ const getNeighbours = ({ i, j }) => {
       }
     }
   }
-  return neighbours;
+
+  return neighbours.filter(onlyUnique);
 };
 
 const iterate = () => {
@@ -111,38 +126,53 @@ const iterate = () => {
   const width = globalThis.boardWidth;
   const tempEdem = [];
   const population = globalThis.population;
-  const newPopulation = globalThis.newPopulation;
+  const newPopulation = { ...population };
+  const edem = globalThis.edemHistory[globalThis.edemHistory.length - 1].split(
+    ";"
+  );
 
-  for (let i = 0; i < height; i++) {
-    for (let j = 0; j < width; j++) {
-      const cell = population[`${i},${j}`];
-      const neighbours = getNeighbours({ i, j });
-      let liveCount = 0;
-      for (let k = 0; k < neighbours.length; k++) {
-        if (population[neighbours[k]].state) {
-          liveCount++;
-        }
-      }
+  let toCheck = edem
+    .map((cell) => {
+      const i = parseInt(cell.split(",")[0]);
+      const j = parseInt(cell.split(",")[1]);
+      return getNeighbours({ i, j });
+    })
+    .reduce((arr, e) => {
+      return arr.concat(e);
+    })
+    .filter(onlyUnique);
 
-      if (cell.state) {
-        const state = liveCount === 2 || liveCount === 3;
-        if (state) {
-          tempEdem.push(cell.id);
-        }
-        newPopulation[cell.id] = {
-          ...cell,
-          state,
-        };
-      } else {
-        const state = liveCount === 3;
-        if (state) {
-          tempEdem.push(cell.id);
-        }
-        newPopulation[cell.id] = {
-          ...cell,
-          state,
-        };
+  for (let p = 0; p < toCheck.length; p++) {
+    // console.log(`toCheck[${p}]`, toCheck[p]);
+    const i = parseInt(toCheck[p].split(",")[0]);
+    const j = parseInt(toCheck[p].split(",")[1]);
+    const cell = population[`${i},${j}`];
+    const neighbours = getNeighbours({ i, j });
+    let liveCount = 0;
+    for (let k = 0; k < neighbours.length; k++) {
+      if (population[neighbours[k]].state) {
+        liveCount++;
       }
+    }
+
+    if (cell.state) {
+      const state = liveCount === 2 || liveCount === 3;
+      if (state) {
+        tempEdem.push(cell.id);
+      }
+      newPopulation[cell.id] = {
+        ...cell,
+        state,
+      };
+    } else {
+      const state = liveCount === 3;
+      if (state) {
+        tempEdem.push(cell.id);
+      }
+      newPopulation[cell.id] = {
+        ...cell,
+        state,
+      };
     }
   }
 
@@ -159,5 +189,36 @@ const iterate = () => {
   globalThis.edemHistory.push(newEdem);
   globalThis.population = newPopulation;
   globalThis.newPopulation = {};
+  drawBoard();
+};
+
+const iterateForecast = () => {
+  // return;
+  const height = globalThis.boardHeight;
+  const width = globalThis.boardWidth;
+  const population = globalThis.population;
+  const newPopulation = { ...population };
+  const edem = globalThis.edemHistory[globalThis.edemHistory.length - 1].split(
+    ";"
+  );
+
+  let toCheck = edem
+    .map((cell) => {
+      const i = parseInt(cell.split(",")[0]);
+      const j = parseInt(cell.split(",")[1]);
+      return getNeighbours({ i, j });
+    })
+    .reduce((arr, e) => {
+      return arr.concat(e);
+    })
+    .filter(onlyUnique);
+
+  for (let p = 0; p < toCheck.length; p++) {
+    if (!edem.includes(toCheck[p])) {
+      newPopulation[toCheck[p]].isForecasted = true;
+    }
+  }
+
+  globalThis.population = newPopulation;
   drawBoard();
 };
