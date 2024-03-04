@@ -2,7 +2,7 @@ window.onload = () => {
   globalThis.boardHeight = 20;
   globalThis.boardWidth = 20;
   // globalThis.edem = ["4,4", "4,5", "5,5", "4,3", "6,3", "6,4", "5,6", "6,5"];
-  globalThis.edem = ["9,8", "11,8", "10,8", "3,4", "4,5", "5,5", "5,4", "5,3"];
+  globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.edemHistory = [];
   // globalThis.edem = ["0,1"];
@@ -24,6 +24,7 @@ const onlyUnique = (value, index, array) => {
 };
 
 const drawBoard = () => {
+  console.log("drawBoard");
   const height = globalThis.boardHeight;
   const width = globalThis.boardWidth;
   const population = globalThis.population;
@@ -33,17 +34,43 @@ const drawBoard = () => {
   board.style.setProperty("grid-template-columns", `repeat(${width}, 1fr)`);
 
   for (let i = 0; i < height; i++) {
-    for (let j = 0; j < width; j++) {
-      const cell = board.appendChild(document.createElement("div"));
-      const cellObj = population[`${i},${j}`];
-      cell.id = cellObj.id;
-      cell.textContent = cellObj.text;
+    setTimeout(() => {
+      for (let j = 0; j < width; j++) {
+        const cell = board.appendChild(document.createElement("div"));
+        const cellObj = population[`${i},${j}`];
+        cell.id = cellObj.id;
+        cell.textContent = cellObj.text;
 
-      cell.style.setProperty(
-        "background-color",
-        cellObj.state ? "green" : cellObj.isForecasted ? "blue" : "grey"
-      );
-    }
+        cell.style.setProperty(
+          "background-color",
+          cellObj.state ? "green" : cellObj.isForecasted ? "grey" : "grey"
+          // cellObj.state ? "green" : cellObj.isForecasted ? "blue" : "grey"
+        );
+      }
+    }, 0);
+  }
+};
+
+const redrawBoard = () => {
+  const height = globalThis.boardHeight;
+  const width = globalThis.boardWidth;
+  const population = globalThis.population;
+  const edem = globalThis.edemHistory[globalThis.edemHistory.length - 1].split(
+    ";"
+  );
+  const toDraw = [...globalThis.lastForecast, ...edem];
+  console.log("toDraw", toDraw);
+  for (let p = 0; p < toDraw.length; p++) {
+    const i = parseInt(toDraw[p].split(",")[0]);
+    const j = parseInt(toDraw[p].split(",")[1]);
+    const cell = document.getElementById(`${i},${j}`);
+    console.log("cell", `${i},${j}`);
+    const cellObj = population[`${i},${j}`];
+    cell.style.setProperty(
+      "background-color",
+      cellObj.state ? "green" : cellObj.isForecasted ? "grey" : "grey"
+      // cellObj.state ? "green" : cellObj.isForecasted ? "blue" : "grey"
+    );
   }
 };
 
@@ -73,13 +100,13 @@ const generateBoard = () => {
 };
 
 const start = () => {
-  // globalThis.proc = setInterval(() => {
-  //   iterate();
-  //   iterateForecast();
-  // }, 0);
+  globalThis.proc = setInterval(() => {
+    iterate();
+    iterateForecast();
+  }, 0);
 
-  iterate();
-  iterateForecast();
+  // iterate();
+  // iterateForecast();
 };
 
 const stop = () => {
@@ -189,7 +216,7 @@ const iterate = () => {
   globalThis.edemHistory.push(newEdem);
   globalThis.population = newPopulation;
   globalThis.newPopulation = {};
-  drawBoard();
+  redrawBoard();
 };
 
 const iterateForecast = () => {
@@ -212,13 +239,13 @@ const iterateForecast = () => {
       return arr.concat(e);
     })
     .filter(onlyUnique);
-
+  console.log("toCheck", toCheck);
   for (let p = 0; p < toCheck.length; p++) {
     if (!edem.includes(toCheck[p])) {
       newPopulation[toCheck[p]].isForecasted = true;
     }
   }
-
+  globalThis.lastForecast = [...toCheck];
   globalThis.population = newPopulation;
-  drawBoard();
+  redrawBoard();
 };
