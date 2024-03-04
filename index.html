@@ -27,7 +27,7 @@
         />
         <input
           type="number"
-          name="boardHeight"
+          name="boardWidth"
           placeholder="Width"
           id="boardWidth"
           onchange="updateField('boardWidth', event.target.value)"
@@ -51,6 +51,15 @@
         >
           Start
         </button>
+        <button
+          type="button"
+          name="stopButton"
+          id="stopButton"
+          onclick="stop()"
+        >
+          Stop
+        </button>
+        <p />
         <div id="board" style="display: grid;"></div>
       </section>
     </main>
