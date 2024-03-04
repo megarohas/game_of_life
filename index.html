@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>game of life</title>
+    <link rel="stylesheet" href="./index.css" />
+    <script src="./index.js"></script>
+    <!-- <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" /> -->
+  </head>
+  <body>
+    <header>
+      <h1>Game of Life</h1>
+    </header>
+    <main>
+      <section>
+        <h2>Board settings</h2>
+        <input
+          type="number"
+          name="boardHeight"
+          placeholder="Height"
+          id="boardHeight"
+          onchange="updateField('boardHeight', event.target.value)"
+        />
+        <input
+          type="number"
+          name="boardHeight"
+          placeholder="Width"
+          id="boardWidth"
+          onchange="updateField('boardWidth', event.target.value)"
+        />
+        <button
+          type="button"
+          name="generateButton"
+          id="generateButton"
+          onclick="generateBoard()"
+        >
+          Generate board
+        </button>
+      </section>
+      <section>
+        <h2>Board</h2>
+        <button
+          type="button"
+          name="startButton"
+          id="startButton"
+          onclick="start()"
+        >
+          Start
+        </button>
+        <div id="board" style="display: grid;"></div>
+      </section>
+    </main>
+    <footer>
+      <!-- <p>megarohas 2024</p> -->
+    </footer>
+  </body>
+</html>
