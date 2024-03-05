@@ -3,8 +3,8 @@ window.onload = () => {
   globalThis.cellSizes = { h: 20, w: 20 };
   globalThis.sceneZero = { h: 0, w: 0 };
   globalThis.scene = 100;
-  globalThis.boardHeight = 200;
-  globalThis.boardWidth = 200;
+  globalThis.boardHeight = 300;
+  globalThis.boardWidth = 300;
   globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
@@ -26,17 +26,17 @@ window.onload = () => {
 };
 
 const start = () => {
-  // globalThis.proc = setInterval(() => {
-  //   iterate();
-  //   iterateForecast();
-  // }, 0);
-  // globalThis.proc = setInterval(() => {
-  //   redrawBoard();
-  // }, 0);
-
-  iterate();
-  iterateForecast();
-  redrawBoard();
+  globalThis.proc = setInterval(() => {
+    iterate();
+    iterateForecast();
+  }, 0);
+  globalThis.proc = setInterval(() => {
+    redrawBoard();
+  }, 0);
+  //
+  // iterate();
+  // iterateForecast();
+  // redrawBoard();
 };
 
 const stop = () => {

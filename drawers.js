@@ -16,7 +16,13 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
     cellHtmlElement.style.setProperty("height", `${globalThis.cellSizes.h}px`);
 };
 
-const drawBoard = ({ shouldPrescrollH = false, shouldPrescrollW = false }) => {
+const drawBoard = ({
+  shouldPrescrollH = false,
+  shouldPrescrollW = false,
+  mustScrollH = undefined, // TODO
+  mustScrollW = undefined, // TODO
+}) => {
+  console.log("globalThis.sceneZero", globalThis.sceneZero);
   const zeroH = globalThis.sceneZero.h;
   const zeroW = globalThis.sceneZero.w;
   const height = globalThis.sceneZero.h + globalThis.scene;
@@ -49,14 +55,20 @@ const drawBoard = ({ shouldPrescrollH = false, shouldPrescrollW = false }) => {
   }
   setTimeout(() => {
     const boardWrapper = document.getElementById("boardWrapper");
-    boardWrapper.scrollTo(
-      globalThis.sceneZero.w > 0 || shouldPrescrollW
-        ? (globalThis.cellSizes.w * (globalThis.scene - globalThis.frame.w)) / 2
-        : 0,
-      globalThis.sceneZero.h > 0 || shouldPrescrollH
-        ? (globalThis.cellSizes.h * (globalThis.scene - globalThis.frame.h)) / 2
-        : 0
-    );
+    // console.log(
+    //   `shouldPrescrollW: ${shouldPrescrollW} | mustScrollW: ${mustScrollW} `
+    // );
+    const scrollW = mustScrollW
+      ? mustScrollW
+      : globalThis.sceneZero.w > 0 || shouldPrescrollW
+      ? (globalThis.cellSizes.w * (globalThis.scene - globalThis.frame.w)) / 2
+      : 0;
+    const scrollH = mustScrollH
+      ? mustScrollH
+      : globalThis.sceneZero.h > 0 || shouldPrescrollH
+      ? (globalThis.cellSizes.h * (globalThis.scene - globalThis.frame.h)) / 2
+      : 0;
+    boardWrapper.scrollTo(scrollW, scrollH);
   }, 0);
 };
 
@@ -65,49 +77,68 @@ const addScrollListener = () => {
   boardWrapper.addEventListener("scroll", (params) => {
     const tempH = Math.ceil(boardWrapper.scrollTop / globalThis.cellSizes.h);
     const tempW = Math.ceil(boardWrapper.scrollLeft / globalThis.cellSizes.w);
-
+    let shouldPrescrollH = false;
+    let shouldPrescrollW = false;
+    let shouldDraw = false;
+    // console.log("boardWrapper.scrollLeft", boardWrapper.scrollLeft);
+    const mustScrollH = boardWrapper.scrollTop;
+    const mustScrollW = boardWrapper.scrollLeft;
     if (
       tempW !== globalThis.cellSizes.w &&
       tempW === 0 &&
       globalThis.sceneZero.w !== 0
     ) {
+      // const tempSceneZeroW =
+      //   globalThis.sceneZero.w -
+      //   globalThis.frame.w -
+      //   Math.floor(globalThis.frame.w + globalThis.frame.w / 2);
       const tempSceneZeroW =
         globalThis.sceneZero.w -
-        globalThis.frame.w -
         Math.floor(globalThis.frame.w + globalThis.frame.w / 2);
 
+      // console.log(
+      //   "[1] globalThis.sceneZero.w = ",
+      //   tempSceneZeroW > 0 ? tempSceneZeroW : 0,
+      //   tempSceneZeroW,
+      //   globalThis.sceneZero
+      // );
       globalThis.sceneZero.w = tempSceneZeroW > 0 ? tempSceneZeroW : 0;
-
-      drawBoard({ shouldPrescrollW: true });
-    }
-
-    if (
+      shouldPrescrollW = false;
+      shouldDraw = true;
+    } else if (
       tempW !== globalThis.cellSizes.w &&
       tempW >= globalThis.scene - globalThis.frame.w - 1
     ) {
+      // console.log(
+      //   "[2] globalThis.sceneZero.w = ",
+      //   globalThis.sceneZero.w +
+      //     tempW -
+      //     Math.floor(globalThis.frame.w + globalThis.frame.w / 2)
+      // );
       globalThis.sceneZero.w =
         globalThis.sceneZero.w +
         tempW -
         Math.floor(globalThis.frame.w + globalThis.frame.w / 2);
-      drawBoard({ shouldPrescrollW: true });
+      shouldPrescrollW = true;
+      shouldDraw = true;
     }
-
     if (
       tempH !== globalThis.cellSizes.h &&
       tempH === 0 &&
       globalThis.sceneZero.h !== 0
     ) {
+      // const tempSceneZeroH =
+      //   globalThis.sceneZero.h -
+      //   globalThis.frame.h -
+      //   Math.floor(globalThis.frame.h + globalThis.frame.h / 2);
       const tempSceneZeroH =
         globalThis.sceneZero.h -
-        globalThis.frame.h -
         Math.floor(globalThis.frame.h + globalThis.frame.h / 2);
 
       globalThis.sceneZero.h = tempSceneZeroH > 0 ? tempSceneZeroH : 0;
-
-      drawBoard({ shouldPrescrollH: true });
-    }
-
-    if (
+      shouldPrescrollH = false;
+      shouldDraw = true;
+    } else if (
       tempH !== globalThis.cellSizes.h &&
       tempH >= globalThis.scene - globalThis.frame.h - 1
     ) {
@@ -115,7 +146,16 @@ const addScrollListener = () => {
         globalThis.sceneZero.h +
         tempH -
         Math.floor(globalThis.frame.h + globalThis.frame.h / 2);
-      drawBoard({ shouldPrescrollH: true });
+      shouldPrescrollH = true;
+      shouldDraw = true;
+    }
+    if (shouldDraw) {
+      drawBoard({
+        shouldPrescrollW,
+        shouldPrescrollH,
+        mustScrollH: !shouldPrescrollH ? mustScrollH : undefined,
+        mustScrollW: !shouldPrescrollW ? mustScrollW : undefined,
+      });
     }
   });
 };
