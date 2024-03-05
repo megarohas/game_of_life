@@ -44,7 +44,7 @@ const generateBoard = () => {
     }, 0);
   }
   setTimeout(() => {
-    drawBoard();
+    drawBoard({});
     addScrollListener();
   }, 0);
 

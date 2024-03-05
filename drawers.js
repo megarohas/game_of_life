@@ -5,27 +5,32 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
       // cellParams.state ? "green" : cellParams.isForecasted ? "grey" : "grey"
       cellParams.state ? "green" : cellParams.isForecasted ? "blue" : "grey"
     );
+  cellHtmlElement && cellHtmlElement.style.setProperty("font-size", `5px`);
+  cellHtmlElement && cellHtmlElement.style.setProperty("display", `flex`);
+  cellHtmlElement && cellHtmlElement.style.setProperty("align-items", `center`);
+  cellHtmlElement &&
+    cellHtmlElement.style.setProperty("justify-content", `center`);
   cellHtmlElement &&
     cellHtmlElement.style.setProperty("width", `${globalThis.cellSizes.w}px`);
   cellHtmlElement &&
     cellHtmlElement.style.setProperty("height", `${globalThis.cellSizes.h}px`);
 };
 
-const drawBoard = () => {
-  const zeroH = globalThis.frameZero.h;
-  const zeroW = globalThis.frameZero.w;
-  const height = globalThis.frameZero.h + globalThis.frame;
-  const width = globalThis.frameZero.w + globalThis.frame;
+const drawBoard = ({ shouldPrescrollH = false, shouldPrescrollW = false }) => {
+  const zeroH = globalThis.sceneZero.h;
+  const zeroW = globalThis.sceneZero.w;
+  const height = globalThis.sceneZero.h + globalThis.scene;
+  const width = globalThis.sceneZero.w + globalThis.scene;
   const population = globalThis.population;
   const board = document.getElementById("board");
   board.innerHTML = "";
   board.style.setProperty(
     "grid-template-rows",
-    `repeat(${globalThis.frame}, 1fr)`
+    `repeat(${globalThis.scene}, 1fr)`
   );
   board.style.setProperty(
     "grid-template-columns",
-    `repeat(${globalThis.frame}, 1fr)`
+    `repeat(${globalThis.scene}, 1fr)`
   );
   for (let i = zeroH; i < height; i++) {
     setTimeout(() => {
@@ -34,17 +39,23 @@ const drawBoard = () => {
           document.createElement("div")
         );
         const cellParams = population[`${i},${j}`];
-        cellHtmlElement.id = cellParams.id;
-        cellHtmlElement.textContent = cellParams.text;
-        paintCell({ cellHtmlElement, cellParams });
+        if (cellHtmlElement && cellParams) {
+          cellHtmlElement.id = cellParams.id;
+          cellHtmlElement.textContent = cellParams.text;
+          paintCell({ cellHtmlElement, cellParams });
+        }
       }
     }, 0);
   }
   setTimeout(() => {
     const boardWrapper = document.getElementById("boardWrapper");
     boardWrapper.scrollTo(
-      globalThis.frameZero.w > 0 ? globalThis.cellSizes.w : 0,
-      globalThis.frameZero.h > 0 ? globalThis.cellSizes.h : 0
+      globalThis.sceneZero.w > 0 || shouldPrescrollW
+        ? (globalThis.cellSizes.w * (globalThis.scene - globalThis.frame.w)) / 2
+        : 0,
+      globalThis.sceneZero.h > 0 || shouldPrescrollH
+        ? (globalThis.cellSizes.h * (globalThis.scene - globalThis.frame.h)) / 2
+        : 0
     );
   }, 0);
 };
@@ -54,38 +65,57 @@ const addScrollListener = () => {
   boardWrapper.addEventListener("scroll", (params) => {
     const tempH = Math.ceil(boardWrapper.scrollTop / globalThis.cellSizes.h);
     const tempW = Math.ceil(boardWrapper.scrollLeft / globalThis.cellSizes.w);
-    console.log("tempH,tempW", tempH, tempW, globalThis.frameZero);
 
     if (
       tempW !== globalThis.cellSizes.w &&
       tempW === 0 &&
-      globalThis.frameZero.w !== 0
+      globalThis.sceneZero.w !== 0
     ) {
-      console.log("loadMore W");
-      globalThis.frameZero.w = globalThis.frameZero.w - 13;
-      drawBoard();
+      const tempSceneZeroW =
+        globalThis.sceneZero.w -
+        globalThis.frame.w -
+        Math.floor(globalThis.frame.w + globalThis.frame.w / 2);
+
+      globalThis.sceneZero.w = tempSceneZeroW > 0 ? tempSceneZeroW : 0;
+
+      drawBoard({ shouldPrescrollW: true });
     }
-    if (tempW !== globalThis.cellSizes.w && tempW >= 13) {
-      console.log("loadMore W");
-      globalThis.frameZero.w = globalThis.frameZero.w + tempW;
-      drawBoard();
+
+    if (
+      tempW !== globalThis.cellSizes.w &&
+      tempW >= globalThis.scene - globalThis.frame.w - 1
+    ) {
+      globalThis.sceneZero.w =
+        globalThis.sceneZero.w +
+        tempW -
+        Math.floor(globalThis.frame.w + globalThis.frame.w / 2);
+      drawBoard({ shouldPrescrollW: true });
     }
 
     if (
       tempH !== globalThis.cellSizes.h &&
       tempH === 0 &&
-      globalThis.frameZero.h !== 0
+      globalThis.sceneZero.h !== 0
     ) {
-      console.log("loadMore H");
-      globalThis.frameZero.h = globalThis.frameZero.h - 5;
+      const tempSceneZeroH =
+        globalThis.sceneZero.h -
+        globalThis.frame.h -
+        Math.floor(globalThis.frame.h + globalThis.frame.h / 2);
 
-      drawBoard();
+      globalThis.sceneZero.h = tempSceneZeroH > 0 ? tempSceneZeroH : 0;
+
+      drawBoard({ shouldPrescrollH: true });
     }
-    if (tempH !== globalThis.cellSizes.h && tempH >= 5) {
-      console.log("loadMore H");
-      globalThis.frameZero.h = globalThis.frameZero.h + tempH;
 
-      drawBoard();
+    if (
+      tempH !== globalThis.cellSizes.h &&
+      tempH >= globalThis.scene - globalThis.frame.h - 1
+    ) {
+      globalThis.sceneZero.h =
+        globalThis.sceneZero.h +
+        tempH -
+        Math.floor(globalThis.frame.h + globalThis.frame.h / 2);
+      drawBoard({ shouldPrescrollH: true });
     }
   });
 };
