@@ -1,4 +1,7 @@
 window.onload = () => {
+  globalThis.lastSceneZeroW = -100;
+  globalThis.lastScrollTop = 0;
+  globalThis.lastScrollLeft = 0;
   // globalThis.cellSizes = { h: 20, w: 50 };
   globalThis.cellSizes = { h: 20, w: 20 };
   globalThis.sceneZero = { h: 0, w: 0 };
