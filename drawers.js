@@ -5,98 +5,87 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
       // cellParams.state ? "green" : cellParams.isForecasted ? "grey" : "grey"
       cellParams.state ? "green" : cellParams.isForecasted ? "blue" : "grey"
     );
+  cellHtmlElement &&
+    cellHtmlElement.style.setProperty("width", `${globalThis.cellSizes.w}px`);
+  cellHtmlElement &&
+    cellHtmlElement.style.setProperty("height", `${globalThis.cellSizes.h}px`);
 };
 
 const drawBoard = () => {
-  const height = globalThis.boardHeight;
-  const width = globalThis.boardWidth;
+  const zeroH = globalThis.frameZero.h;
+  const zeroW = globalThis.frameZero.w;
+  const height = globalThis.frameZero.h + globalThis.frame;
+  const width = globalThis.frameZero.w + globalThis.frame;
   const population = globalThis.population;
   const board = document.getElementById("board");
   board.innerHTML = "";
-  board.style.setProperty("grid-template-rows", `repeat(${height}, 1fr)`);
-  board.style.setProperty("grid-template-columns", `repeat(${width}, 1fr)`);
-
-  // var options = {
-  //   root: document.querySelector("#boardWrapper"),
-  //   rootMargin: "0px",
-  //   threshold: 1.0,
-  // };
-  // var callback = function (entries, observer) {
-  /* Content excerpted, show below */
-  // .target - this is div#21,0
-  // console.log("CB", entries);
-  // };
-  // var observer = new IntersectionObserver(callback, options);
-
-  for (let i = 0; i < height; i++) {
+  board.style.setProperty(
+    "grid-template-rows",
+    `repeat(${globalThis.frame}, 1fr)`
+  );
+  board.style.setProperty(
+    "grid-template-columns",
+    `repeat(${globalThis.frame}, 1fr)`
+  );
+  for (let i = zeroH; i < height; i++) {
     setTimeout(() => {
-      let j = 0;
-      let tempMax = width > 50 ? 50 : width;
-      // console.log("1");
-      while (tempMax <= width) {
-        // console.log("2", tempMax, width);
-        while (j < tempMax) {
-          // console.log("3", j, tempMax);
-
-          const cellHtmlElement = board.appendChild(
-            document.createElement("div")
-          );
-          const cellParams = population[`${i},${j}`];
-          // var target = cellHtmlElement;
-          // observer.observe(target);
-          cellHtmlElement.id = cellParams.id;
-          cellHtmlElement.textContent = cellParams.text;
-          paintCell({ cellHtmlElement, cellParams });
-          j++;
-        }
-        // tempMax = tempMax + 50 > width ? width : tempMax + 50;
-        tempMax = tempMax + 50;
+      for (let j = zeroW; j < width; j++) {
+        const cellHtmlElement = board.appendChild(
+          document.createElement("div")
+        );
+        const cellParams = population[`${i},${j}`];
+        cellHtmlElement.id = cellParams.id;
+        cellHtmlElement.textContent = cellParams.text;
+        paintCell({ cellHtmlElement, cellParams });
       }
-
-      // for (let j = 0; j < width; j++) {
-      //   const cellHtmlElement = board.appendChild(
-      //     document.createElement("div")
-      //   );
-      //   const cellParams = population[`${i},${j}`];
-      //   cellHtmlElement.id = cellParams.id;
-      //   cellHtmlElement.textContent = cellParams.text;
-      //   paintCell({ cellHtmlElement, cellParams });
-      // }
     }, 0);
-    // for (let j = 0; j < width; j++) {
-    //   const cellHtmlElement = board.appendChild(document.createElement("div"));
-    //   const cellParams = population[`${i},${j}`];
-    //   cellHtmlElement.id = cellParams.id;
-    //   cellHtmlElement.textContent = cellParams.text;
-    //   paintCell({ cellHtmlElement, cellParams });
-    // }
   }
+  setTimeout(() => {
+    const boardWrapper = document.getElementById("boardWrapper");
+    boardWrapper.scrollTo(
+      globalThis.frameZero.w > 0 ? globalThis.cellSizes.w : 0,
+      globalThis.frameZero.h > 0 ? globalThis.cellSizes.h : 0
+    );
+  }, 0);
+};
 
-  // alert('');
-  // const board = document.getElementById("board");
-  // const canvas = document.getElementById("canvas");
-  // console.log("canvas", canvas);
-  // const context = canvas.getContext("2d");
-  // console.log("context", context);
-  // console.log("board.height", board.height);
-  // console.log("board.width", board.width);
-  // context.drawImage(board, 0, 0, board.width, board.height);
+const addScrollListener = () => {
   const boardWrapper = document.getElementById("boardWrapper");
   boardWrapper.addEventListener("scroll", (params) => {
-    // console.log("scroll", boardWrapper.scrollTop, boardWrapper.scrollHeight);
+    const tempH = Math.ceil(boardWrapper.scrollTop / globalThis.cellSizes.h);
+    const tempW = Math.ceil(boardWrapper.scrollLeft / globalThis.cellSizes.w);
+    console.log("tempH,tempW", tempH, tempW, globalThis.frameZero);
+
     if (
-      boardWrapper.scrollTop + boardWrapper.clientHeight >=
-      boardWrapper.scrollHeight
+      tempW !== globalThis.cellSizes.w &&
+      tempW === 0 &&
+      globalThis.frameZero.w !== 0
     ) {
-      // loadMore();
-      console.log("loadMore H");
-    }
-    if (
-      boardWrapper.scrollLeft + boardWrapper.clientWidth >=
-      boardWrapper.scrollWidth
-    ) {
-      // loadMore();
       console.log("loadMore W");
+      globalThis.frameZero.w = globalThis.frameZero.w - 13;
+      drawBoard();
+    }
+    if (tempW !== globalThis.cellSizes.w && tempW >= 13) {
+      console.log("loadMore W");
+      globalThis.frameZero.w = globalThis.frameZero.w + tempW;
+      drawBoard();
+    }
+
+    if (
+      tempH !== globalThis.cellSizes.h &&
+      tempH === 0 &&
+      globalThis.frameZero.h !== 0
+    ) {
+      console.log("loadMore H");
+      globalThis.frameZero.h = globalThis.frameZero.h - 5;
+
+      drawBoard();
+    }
+    if (tempH !== globalThis.cellSizes.h && tempH >= 5) {
+      console.log("loadMore H");
+      globalThis.frameZero.h = globalThis.frameZero.h + tempH;
+
+      drawBoard();
     }
   });
 };
