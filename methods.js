@@ -1,4 +1,6 @@
 const getNeighbours = (cellCoordinates) => {
+  // console.log("getNeighbours");
+  // console.time("getNeighbours");
   const height = globalThis.boardHeight;
   const width = globalThis.boardWidth;
   const i = parseInt(cellCoordinates.split(",")[0]);
@@ -19,36 +21,52 @@ const getNeighbours = (cellCoordinates) => {
       }
     }
   }
-
-  return neighbours.filter(onlyUnique);
+  // console.log();
+  const result = neighbours.filter(onlyUnique);
+  // console.timeEnd("getNeighbours");
+  return result;
 };
 
 const generateBoard = () => {
+  // console.time("0");
   globalThis.population = {};
 
   for (let i = 0; i < globalThis.boardHeight; i++) {
-    for (let j = 0; j < globalThis.boardWidth; j++) {
-      const cell = board.appendChild(document.createElement("div"));
-      const id = `${i},${j}`;
-      const cellParams = {
-        i,
-        j,
-        id,
-        text: `(${id})`,
-        state: globalThis.edem.includes(`${i},${j}`),
-        isForecasted: false,
-      };
-      globalThis.population[id] = cellParams;
-    }
+    setTimeout(() => {
+      for (let j = 0; j < globalThis.boardWidth; j++) {
+        const cell = board.appendChild(document.createElement("div"));
+        const id = `${i},${j}`;
+        const cellParams = {
+          i,
+          j,
+          id,
+          text: `(${id})`,
+          state: globalThis.edem.includes(`${i},${j}`),
+          isForecasted: false,
+        };
+        globalThis.population[id] = cellParams;
+      }
+    }, 0);
   }
-  drawBoard();
+  // console.timeEnd("0");
+  setTimeout(() => {
+    drawBoard();
+  }, 0);
+  setTimeout(() => {
+    iterateForecast();
+  }, 0);
 };
 
 const iterate = () => {
+  // const startDate = Date.now();
   // const height = globalThis.boardHeight;
   // const width = globalThis.boardWidth;
+  // console.time("2");
   const tempAlives = [];
-  const newPopulation = { ...globalThis.population };
+
+  // const newPopulation = { ...globalThis.population };
+  const newPopulation = {};
+
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
@@ -61,7 +79,8 @@ const iterate = () => {
       return arr.concat(e);
     })
     .filter(onlyUnique);
-
+  // console.log("toCheck.length", toCheck.length);
+  // console.log(`1 timer: ${Date.now() - startDate}`);
   for (let p = 0; p < toCheck.length; p++) {
     const cell = globalThis.population[toCheck[p]];
     const neighbours = getNeighbours(cell.id);
@@ -92,6 +111,7 @@ const iterate = () => {
       };
     }
   }
+  // console.log(`2 timer: ${Date.now() - startDate}`);
 
   const newAlives = tempAlives.sort().join(";");
   if (tempAlives.length === 0) {
@@ -99,17 +119,28 @@ const iterate = () => {
     alert("game is over, ng is empty");
   }
   if (globalThis.alivesHistory.includes(newAlives)) {
+    // console.timeEnd("1");
     stop();
     alert("game is over, ng is period");
   }
 
   globalThis.alivesHistory.push(newAlives);
-  globalThis.population = newPopulation;
-  redrawBoard();
+
+  for (const newCellId in newPopulation) {
+    globalThis.population[newCellId].state = newPopulation[newCellId].state;
+  }
+  // globalThis.population = newPopulation;
+
+  // console.time("3");
+  // redrawBoard();
+  // console.timeEnd("2");
+  // console.timeEnd("2");
+  // console.timeEnd("3");
 };
 
 const iterateForecast = () => {
   // return;
+  // console.time("4");
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
@@ -129,5 +160,6 @@ const iterateForecast = () => {
     }
   }
   globalThis.lastForecast = [...toCheck];
-  redrawBoard();
+  // redrawBoard();
+  // console.timeEnd("4");
 };

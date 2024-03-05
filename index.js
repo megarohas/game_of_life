@@ -1,6 +1,10 @@
 window.onload = () => {
-  globalThis.boardHeight = 20;
-  globalThis.boardWidth = 20;
+  globalThis.tempZeroHeight = 0;
+  globalThis.tempZeroWidth = 0;
+  globalThis.tempHeight = 30;
+  globalThis.tempWidth = 20;
+  globalThis.boardHeight = 300;
+  globalThis.boardWidth = 300;
   globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
@@ -10,17 +14,21 @@ window.onload = () => {
   globalThis.alivesHistory.push(globalThis.edem.sort().join(";"));
   globalThis.lastForecast = [];
   generateBoard();
-  iterateForecast();
+  // iterateForecast();
 };
 
 const start = () => {
-  // globalThis.proc = setInterval(() => {
-  //   iterate();
-  //   iterateForecast();
-  // }, 0);
+  // console.time("1");
+  globalThis.proc = setInterval(() => {
+    iterate();
+    iterateForecast();
+  }, 0);
+  globalThis.proc = setInterval(() => {
+    redrawBoard();
+  }, 0);
 
-  iterate();
-  iterateForecast();
+  // iterate();
+  // iterateForecast();
 };
 
 const stop = () => {
