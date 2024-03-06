@@ -20,7 +20,10 @@
     </header> -->
     <main>
       <section>
-        <h2>Board settings</h2>
+        <h2>
+          Board settings
+        </h2>
+
         <input
           type="number"
           name="boardHeight"
@@ -65,6 +68,7 @@
         >
           Generate random board
         </button>
+        <div id="timer"></div>
       </section>
       <section
         style="
@@ -75,7 +79,7 @@
           flex-direction: column;
         "
       >
-        <h2>Board</h2>
+        <h3></h3>
         <div
           style="
             width: 100%;
@@ -135,6 +139,7 @@
               width: 500px;
               overflow: scroll;
               background-color: #5a5560;
+              border: 1rem solid white;
             "
           >
             <div id="board" style="display: grid;"></div>

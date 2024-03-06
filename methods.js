@@ -1,4 +1,5 @@
 const init = ({ customEdem = undefined }) => {
+  globalThis.predictTime = 0;
   globalThis.moveStep = 10;
   globalThis.cellSizes = { h: 5, w: 5 };
   globalThis.boardHeight = 1000;
@@ -30,7 +31,8 @@ const init = ({ customEdem = undefined }) => {
   };
 };
 
-const getNeighbours = (cellCoordinates) => {
+const getNeighbours = (cellCoordinates, number) => {
+  // console.log(`getNeighbours ${number}`);
   const height = globalThis.boardHeight;
   const width = globalThis.boardWidth;
   const i = parseInt(cellCoordinates.split(",")[0]);
@@ -162,27 +164,31 @@ const iterate = () => {
   const tempAlives = [];
   const newPopulation = {};
   console.log("");
+
   console.time("1");
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
+
+  getIteratePrediction(alives.length);
   // console.log("alives", alives);
-  console.timeEnd("1");
-  console.time("2");
+  // console.timeEnd("1");
+  // console.time("2");
   let toCheck = alives
     .map((cellCoordinates) => {
-      return [...getNeighbours(cellCoordinates), cellCoordinates];
+      return [...getNeighbours(cellCoordinates, 1), cellCoordinates];
     })
     .reduce((arr, e) => {
       return arr.concat(e);
     })
     .filter(onlyUnique);
   // console.log("toCheck", toCheck);
-  console.timeEnd("2");
-  console.time("3");
+  // console.log(`alives: ${alives.length}  toCheck: ${toCheck.length}`);
+  // console.timeEnd("2");
+  // console.time("3");
   for (let p = 0; p < toCheck.length; p++) {
     const cell = globalThis.population[toCheck[p]];
-    const neighbours = getNeighbours(cell.id);
+    const neighbours = getNeighbours(cell.id, 2);
     let liveCount = 0;
     for (let k = 0; k < neighbours.length; k++) {
       if (globalThis.population[neighbours[k]].state) {
@@ -211,13 +217,13 @@ const iterate = () => {
     }
   }
   const newAlives = tempAlives.sort().join(";");
-  console.timeEnd("3");
-  console.time("4");
+  // console.timeEnd("3");
+  // console.time("4");
   for (const newCellId in newPopulation) {
     globalThis.population[newCellId].state = newPopulation[newCellId].state;
   }
-  console.timeEnd("4");
-  console.time("5");
+  // console.timeEnd("4");
+  // console.time("5");
   if (
     globalThis.alivesHistory.filter(
       (state) =>
@@ -230,7 +236,7 @@ const iterate = () => {
     // alert("game is over, ng is period");
     return;
   }
-  console.timeEnd("5");
+  // console.timeEnd("5");
   if (tempAlives.length === 0) {
     stop();
     console.log("game is over, ng is empty");
@@ -239,6 +245,7 @@ const iterate = () => {
   }
 
   globalThis.alivesHistory.push(newAlives);
+  console.timeEnd("1");
 };
 
 const iterateForecast = () => {
