@@ -4,7 +4,11 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
     cellHtmlElement.style.setProperty(
       "background-color",
       // cellParams.state ? "green" : cellParams.isForecasted ? "grey" : "grey"
-      cellParams.state ? "green" : cellParams.isForecasted ? "blue" : "grey"
+      cellParams.state
+        ? "#9d8d8f"
+        : cellParams.isForecasted
+        ? "#46344e"
+        : "#5a5560"
     );
     cellHtmlElement.setAttribute(
       "title",

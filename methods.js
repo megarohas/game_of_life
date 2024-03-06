@@ -1,8 +1,8 @@
 const init = ({ customEdem = undefined }) => {
   globalThis.moveStep = 10;
   globalThis.cellSizes = { h: 5, w: 5 };
-  globalThis.boardHeight = 500;
-  globalThis.boardWidth = 500;
+  globalThis.boardHeight = 1000;
+  globalThis.boardWidth = 1000;
   globalThis.edem = customEdem
     ? customEdem
     : ["50,49", "50,50", "49,50", "49,51", "49,52", "50,52", "50,53"];
@@ -161,14 +161,14 @@ const move = (direction) => {
 const iterate = () => {
   const tempAlives = [];
   const newPopulation = {};
-  // console.log("");
-  // console.time("1");
+  console.log("");
+  console.time("1");
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
   // console.log("alives", alives);
-  // console.timeEnd("1");
-  // console.time("2");
+  console.timeEnd("1");
+  console.time("2");
   let toCheck = alives
     .map((cellCoordinates) => {
       return [...getNeighbours(cellCoordinates), cellCoordinates];
@@ -178,8 +178,8 @@ const iterate = () => {
     })
     .filter(onlyUnique);
   // console.log("toCheck", toCheck);
-  // console.timeEnd("2");
-  // console.time("3");
+  console.timeEnd("2");
+  console.time("3");
   for (let p = 0; p < toCheck.length; p++) {
     const cell = globalThis.population[toCheck[p]];
     const neighbours = getNeighbours(cell.id);
@@ -211,13 +211,13 @@ const iterate = () => {
     }
   }
   const newAlives = tempAlives.sort().join(";");
-  // console.timeEnd("3");
-  // console.time("4");
+  console.timeEnd("3");
+  console.time("4");
   for (const newCellId in newPopulation) {
     globalThis.population[newCellId].state = newPopulation[newCellId].state;
   }
-  // console.timeEnd("4");
-  // console.time("5");
+  console.timeEnd("4");
+  console.time("5");
   if (
     globalThis.alivesHistory.filter(
       (state) =>
@@ -230,7 +230,7 @@ const iterate = () => {
     // alert("game is over, ng is period");
     return;
   }
-  // console.timeEnd("5");
+  console.timeEnd("5");
   if (tempAlives.length === 0) {
     stop();
     console.log("game is over, ng is empty");
