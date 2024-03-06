@@ -6,6 +6,10 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
       // cellParams.state ? "green" : cellParams.isForecasted ? "grey" : "grey"
       cellParams.state ? "green" : cellParams.isForecasted ? "blue" : "grey"
     );
+    cellHtmlElement.setAttribute(
+      "title",
+      `(${cellParams.id}) Click to change state`
+    );
     // cellHtmlElement.style.setProperty("font-size", `5px`);
     // cellHtmlElement.style.setProperty("display", `flex`);
     // cellHtmlElement.style.setProperty("align-items", `center`);
@@ -76,16 +80,19 @@ const redrawBoard = () => {
     globalThis.alivesHistory.length - 1
   ].split(";");
   const toDraw =
-    globalThis.alivesHistory.length >= 1
+    globalThis.alivesHistory.length > 1
       ? [
           ...globalThis.lastForecast,
           ...alives,
           ...globalThis.alivesHistory[
             globalThis.alivesHistory.length - 2
           ].split(";"),
-        ].filter(onlyUnique)
-      : [...globalThis.lastForecast, ...alives].filter(onlyUnique);
+        ]
+          .filter(onlyUnique)
+          .sort()
+      : [...globalThis.lastForecast, ...alives].filter(onlyUnique).sort();
 
+  // console.log("toDraw", toDraw);
   for (let p = 0; p < toDraw.length; p++) {
     const i = parseInt(toDraw[p].split(",")[0]);
     const j = parseInt(toDraw[p].split(",")[1]);

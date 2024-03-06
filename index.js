@@ -6,11 +6,13 @@ window.onload = () => {
 
 const start = () => {
   globalThis.procIterate = setInterval(() => {
-    iterate();
-    iterateForecast();
-  }, 0);
-  globalThis.procRedraw = setInterval(() => {
-    redrawBoard();
+    setTimeout(() => {
+      iterate();
+      iterateForecast();
+    }, 0);
+    setTimeout(() => {
+      redrawBoard();
+    }, 0);
   }, 0);
 
   // iterate();
@@ -20,5 +22,5 @@ const start = () => {
 
 const stop = () => {
   clearInterval(globalThis.procIterate);
-  clearInterval(globalThis.procRedraw);
+  // clearInterval(globalThis.procRedraw);
 };

@@ -3,7 +3,16 @@ const init = () => {
   globalThis.cellSizes = { h: 5, w: 5 };
   globalThis.boardHeight = 500;
   globalThis.boardWidth = 500;
-  globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
+  globalThis.edem = [
+    "50,49",
+    "50,50",
+    "49,50",
+    "49,51",
+    "49,52",
+    "50,52",
+    "50,53",
+  ];
+  // globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
   globalThis.population = {};
@@ -208,15 +217,16 @@ const iterate = () => {
   ) {
     stop();
     console.log("game is over, ng is period");
+    // console.log("newAlives", newAlives.split(";"));
     // alert("game is over, ng is period");
-    // return;
+    return;
   }
   // console.timeEnd("5");
   if (tempAlives.length === 0) {
     stop();
     console.log("game is over, ng is empty");
     // alert("game is over, ng is empty");
-    // return;
+    return;
   }
 
   globalThis.alivesHistory.push(newAlives);
@@ -227,6 +237,7 @@ const iterateForecast = () => {
     globalThis.alivesHistory.length - 1
   ].split(";");
 
+  // console.log("alives", alives);
   let toCheck = alives
     .map((cellCoordinates) => {
       return getNeighbours(cellCoordinates);
@@ -236,6 +247,7 @@ const iterateForecast = () => {
     })
     .filter(onlyUnique);
 
+  // console.log("toCheck", toCheck);
   for (let p = 0; p < toCheck.length; p++) {
     if (!alives.includes(toCheck[p])) {
       globalThis.population[toCheck[p]].isForecasted = true;
@@ -245,6 +257,7 @@ const iterateForecast = () => {
 };
 
 const changeCellState = (id) => {
+  // console.log(`id: ${id}`);
   globalThis.population[id] = {
     ...globalThis.population[id],
     state: !globalThis.population[id].state,
@@ -266,6 +279,14 @@ const changeCellState = (id) => {
     ] = lastAlives.sort().join(";");
   }
 
-  drawBoard({});
-  iterateForecast();
+  const cellHtmlElement = document.getElementById(id);
+  const cellParams = population[id];
+  paintCell({ cellHtmlElement, cellParams });
+
+  setTimeout(() => {
+    iterateForecast();
+  }, 0);
+  setTimeout(() => {
+    redrawBoard();
+  }, 0);
 };
