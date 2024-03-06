@@ -1,6 +1,6 @@
 window.onload = () => {
-  init();
-  generateBoard();
+  // init();
+  generateDefaultBoard();
   iterateForecast();
 };
 

@@ -1,17 +1,11 @@
-const init = () => {
+const init = ({ customEdem = undefined }) => {
   globalThis.moveStep = 10;
   globalThis.cellSizes = { h: 5, w: 5 };
   globalThis.boardHeight = 500;
   globalThis.boardWidth = 500;
-  globalThis.edem = [
-    "50,49",
-    "50,50",
-    "49,50",
-    "49,51",
-    "49,52",
-    "50,52",
-    "50,53",
-  ];
+  globalThis.edem = customEdem
+    ? customEdem
+    : ["50,49", "50,50", "49,50", "49,51", "49,52", "50,52", "50,53"];
   // globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
@@ -65,9 +59,24 @@ const getNeighbours = (cellCoordinates) => {
   }
 };
 
-const generateBoard = () => {
+const generateDefaultBoard = () => {
   stop();
-  init();
+  init({});
+  generateBoard({});
+};
+
+const generateRandomBoard = () => {
+  stop();
+  init({
+    customEdem: generateRandomCoordinates({
+      from: globalThis.frameZero.h,
+      to: globalThis.frame.w,
+    }),
+  });
+  generateBoard();
+};
+
+const generateBoard = () => {
   globalThis.population = {};
 
   console.time("generateBoard");
