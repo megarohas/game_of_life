@@ -1,8 +1,8 @@
 const init = () => {
   globalThis.moveStep = 10;
   globalThis.cellSizes = { h: 5, w: 5 };
-  globalThis.boardHeight = 300;
-  globalThis.boardWidth = 300;
+  globalThis.boardHeight = 500;
+  globalThis.boardWidth = 500;
   globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
@@ -61,7 +61,42 @@ const generateBoard = () => {
   init();
   globalThis.population = {};
 
+  console.time("generateBoard");
+
   for (let i = 0; i < globalThis.boardHeight; i++) {
+    setTimeout(() => {
+      for (let j = 0; j < globalThis.boardWidth; j++) {
+        const id = `${i},${j}`;
+        globalThis.population[id] = {
+          i,
+          j,
+          id,
+          text: `(${id})`,
+          state: false,
+          isForecasted: false,
+        };
+      }
+    }, 0);
+  }
+
+  setTimeout(() => {
+    for (const cell of globalThis.edem) {
+      const id = cell;
+      const i = cell.split(",")[0];
+      const j = cell.split(",")[1];
+      globalThis.population[id] = {
+        i,
+        j,
+        id,
+        text: `(${id})`,
+        state: true,
+        isForecasted: false,
+      };
+    }
+  }, 0);
+
+  /*
+  for (let i = 0; i < globalThis.boardHeight / 2; i++) {
     setTimeout(() => {
       for (let j = 0; j < globalThis.boardWidth; j++) {
         const cell = board.appendChild(document.createElement("div"));
@@ -75,10 +110,36 @@ const generateBoard = () => {
           isForecasted: false,
         };
         globalThis.population[id] = cellParams;
+        // console.log(i);
       }
     }, 0);
   }
+
+  for (
+    let i = Math.ceil(globalThis.boardHeight / 2);
+    i < globalThis.boardHeight;
+    i++
+  ) {
+    setTimeout(() => {
+      for (let j = 0; j < globalThis.boardWidth; j++) {
+        const cell = board.appendChild(document.createElement("div"));
+        const id = `${i},${j}`;
+        const cellParams = {
+          i,
+          j,
+          id,
+          text: `(${id})`,
+          state: globalThis.edem.includes(`${i},${j}`),
+          isForecasted: false,
+        };
+        globalThis.population[id] = cellParams;
+        // console.log(i);
+      }
+    }, 0);
+  }
+*/
   setTimeout(() => {
+    console.timeEnd("generateBoard");
     drawBoard({});
   }, 0);
 
@@ -88,7 +149,7 @@ const generateBoard = () => {
 };
 
 const move = (direction) => {
-  console.log(`move: ${direction}`);
+  // console.log(`move: ${direction}`);
   const moveStep = globalThis.moveStep;
   if (direction === "down") {
     const newZeroH = globalThis.frameZero.h + moveStep;
