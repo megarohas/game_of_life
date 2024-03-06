@@ -15,9 +15,9 @@
     <meta property="og:url" content="" /> -->
   </head>
   <body>
-    <header>
+    <!-- <header>
       <h1>Game of Life</h1>
-    </header>
+    </header> -->
     <main>
       <section>
         <h2>Board settings</h2>
@@ -35,6 +35,20 @@
           id="boardWidth"
           onchange="updateField('boardWidth', event.target.value)"
         />
+        <input
+          type="number"
+          name="cellHeight"
+          placeholder="Cell height"
+          id="cellHeight"
+          onchange="updateCellSize('h', event.target.value)"
+        />
+        <input
+          type="number"
+          name="cellWidth"
+          placeholder="Cell width"
+          id="cellWidth"
+          onchange="updateCellSize('w', event.target.value)"
+        />
         <button
           type="button"
           name="generateButton"
@@ -44,31 +58,90 @@
           Generate board
         </button>
       </section>
-      <section>
+      <section
+        style="
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+        "
+      >
         <h2>Board</h2>
+        <div
+          style="
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+          "
+        >
+          <button
+            type="button"
+            name="startButton"
+            id="startButton"
+            onclick="start()"
+          >
+            Start
+          </button>
+          <button
+            type="button"
+            name="stopButton"
+            id="stopButton"
+            onclick="stop()"
+          >
+            Stop
+          </button>
+        </div>
+
         <button
           type="button"
           name="startButton"
           id="startButton"
-          onclick="start()"
+          onclick="move('up')"
         >
-          Start
+          Up
         </button>
+        <div
+          style="
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <button
+            type="button"
+            name="startButton"
+            id="startButton"
+            onclick="move('left')"
+          >
+            Left
+          </button>
+          <div
+            id="boardWrapper"
+            style="width: 100%; height: 500px; width: 500px; overflow: scroll;"
+          >
+            <div id="board" style="display: grid;"></div>
+          </div>
+          <button
+            type="button"
+            name="startButton"
+            id="startButton"
+            onclick="move('right')"
+          >
+            Right
+          </button>
+        </div>
         <button
           type="button"
-          name="stopButton"
-          id="stopButton"
-          onclick="stop()"
+          name="startButton"
+          id="startButton"
+          onclick="move('down')"
         >
-          Stop
+          Down
         </button>
-        <p />
-        <div
-          id="boardWrapper"
-          style="width: 100%; height: 500px; width: 500px; overflow: scroll;"
-        >
-          <div id="board" style="display: grid;"></div>
-        </div>
       </section>
       <!-- <section>
         <canvas id="canvas"></canvas>

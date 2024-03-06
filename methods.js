@@ -1,3 +1,32 @@
+const init = () => {
+  globalThis.moveStep = 10;
+  globalThis.cellSizes = { h: 5, w: 5 };
+  globalThis.boardHeight = 300;
+  globalThis.boardWidth = 300;
+  globalThis.edem = ["1,15", "2,15", "3,15", "3,4", "4,5", "5,5", "5,4", "5,3"];
+  // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
+  globalThis.alivesHistory = [];
+  globalThis.population = {};
+  document.getElementById("boardHeight").value = globalThis.boardHeight;
+  document.getElementById("boardWidth").value = globalThis.boardWidth;
+  document.getElementById("cellHeight").value = globalThis.cellSizes.h;
+  document.getElementById("cellWidth").value = globalThis.cellSizes.w;
+  globalThis.alivesHistory.push(globalThis.edem.sort().join(";"));
+  globalThis.lastForecast = [];
+
+  const boardWrapper = document.getElementById("boardWrapper");
+  const wrapperWidth = parseInt(boardWrapper.style.width);
+  const wrapperHeight = parseInt(boardWrapper.style.height);
+  globalThis.frame = {
+    h: wrapperHeight / globalThis.cellSizes.h,
+    w: wrapperWidth / globalThis.cellSizes.w,
+  };
+  globalThis.frameZero = {
+    h: 0,
+    w: 0,
+  };
+};
+
 const getNeighbours = (cellCoordinates) => {
   const height = globalThis.boardHeight;
   const width = globalThis.boardWidth;
@@ -11,19 +40,25 @@ const getNeighbours = (cellCoordinates) => {
   const hNeighbours = [preI, i, postI];
   const wNeighbours = [preJ, j, postJ];
 
-  const neighbours = [];
-  for (let ii = 0; ii < hNeighbours.length; ii++) {
-    for (let jj = 0; jj < wNeighbours.length; jj++) {
-      if (cell.id !== `${hNeighbours[ii]},${wNeighbours[jj]}`) {
-        neighbours.push(`${hNeighbours[ii]},${wNeighbours[jj]}`);
+  if (cell) {
+    const neighbours = [];
+    for (let ii = 0; ii < hNeighbours.length; ii++) {
+      for (let jj = 0; jj < wNeighbours.length; jj++) {
+        if (cell.id !== `${hNeighbours[ii]},${wNeighbours[jj]}`) {
+          neighbours.push(`${hNeighbours[ii]},${wNeighbours[jj]}`);
+        }
       }
     }
+    const result = neighbours.filter(onlyUnique);
+    return result;
+  } else {
+    return [];
   }
-  const result = neighbours.filter(onlyUnique);
-  return result;
 };
 
 const generateBoard = () => {
+  stop();
+  init();
   globalThis.population = {};
 
   for (let i = 0; i < globalThis.boardHeight; i++) {
@@ -45,12 +80,44 @@ const generateBoard = () => {
   }
   setTimeout(() => {
     drawBoard({});
-    addScrollListener();
   }, 0);
 
   setTimeout(() => {
     iterateForecast();
   }, 0);
+};
+
+const move = (direction) => {
+  console.log(`move: ${direction}`);
+  const moveStep = globalThis.moveStep;
+  if (direction === "down") {
+    const newZeroH = globalThis.frameZero.h + moveStep;
+    if (newZeroH <= globalThis.boardHeight) {
+      globalThis.frameZero.h = newZeroH;
+      drawBoard({});
+    }
+  }
+  if (direction === "up") {
+    const newZeroH = globalThis.frameZero.h - moveStep;
+    if (newZeroH >= 0) {
+      globalThis.frameZero.h = newZeroH;
+      drawBoard({});
+    }
+  }
+  if (direction === "right") {
+    const newZeroW = globalThis.frameZero.w + moveStep;
+    if (newZeroW <= globalThis.boardWidth) {
+      globalThis.frameZero.w = newZeroW;
+      drawBoard({});
+    }
+  }
+  if (direction === "left") {
+    const newZeroW = globalThis.frameZero.w - moveStep;
+    if (newZeroW >= 0) {
+      globalThis.frameZero.w = newZeroW;
+      drawBoard({});
+    }
+  }
 };
 
 const iterate = () => {
@@ -101,23 +168,31 @@ const iterate = () => {
     }
   }
   const newAlives = tempAlives.sort().join(";");
-  if (globalThis.alivesHistory.includes(newAlives)) {
-    stop();
-    // alert("game is over, ng is period");
-    return;
-  }
-
-  if (tempAlives.length === 0) {
-    stop();
-    // alert("game is over, ng is empty");
-    return;
-  }
-
-  globalThis.alivesHistory.push(newAlives);
 
   for (const newCellId in newPopulation) {
     globalThis.population[newCellId].state = newPopulation[newCellId].state;
   }
+
+  if (
+    globalThis.alivesHistory.filter(
+      (state) =>
+        state === globalThis.alivesHistory[globalThis.alivesHistory.length - 1]
+    ).length > 1
+  ) {
+    stop();
+    console.log("game is over, ng is period");
+    // alert("game is over, ng is period");
+    // return;
+  }
+
+  if (tempAlives.length === 0) {
+    stop();
+    console.log("game is over, ng is empty");
+    // alert("game is over, ng is empty");
+    // return;
+  }
+
+  globalThis.alivesHistory.push(newAlives);
 };
 
 const iterateForecast = () => {
