@@ -12,7 +12,7 @@ const start = () => {
   globalThis.procRedraw = setInterval(() => {
     redrawBoard();
   }, 0);
-  //
+
   // iterate();
   // iterateForecast();
   // redrawBoard();

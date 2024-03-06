@@ -1,0 +1,15 @@
+.cell {
+  font-size: 5px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  outline: 0.5px solid black;
+  outline-offset: -0.5px;
+  justify-content: center;
+  cursor: none;
+}
+
+.cell:hover {
+  background-color: #d8ecf3 !important;
+  /* cursor: pointer; */
+}

@@ -1,24 +1,26 @@
 const paintCell = ({ cellHtmlElement, cellParams }) => {
-  cellHtmlElement &&
+  if (cellHtmlElement) {
+    cellHtmlElement.setAttribute("class", "cell");
     cellHtmlElement.style.setProperty(
       "background-color",
       // cellParams.state ? "green" : cellParams.isForecasted ? "grey" : "grey"
       cellParams.state ? "green" : cellParams.isForecasted ? "blue" : "grey"
     );
-  cellHtmlElement && cellHtmlElement.style.setProperty("font-size", `5px`);
-  cellHtmlElement && cellHtmlElement.style.setProperty("display", `flex`);
-  cellHtmlElement && cellHtmlElement.style.setProperty("align-items", `center`);
-  cellHtmlElement && cellHtmlElement.style.setProperty("overflow", `hidden`);
-  cellHtmlElement &&
-    cellHtmlElement.style.setProperty("outline", `0.5px solid black`);
-  cellHtmlElement &&
-    cellHtmlElement.style.setProperty("outline-offset", `-0.5px`);
-  cellHtmlElement &&
-    cellHtmlElement.style.setProperty("justify-content", `center`);
-  cellHtmlElement &&
+    // cellHtmlElement.style.setProperty("font-size", `5px`);
+    // cellHtmlElement.style.setProperty("display", `flex`);
+    // cellHtmlElement.style.setProperty("align-items", `center`);
+    // cellHtmlElement.style.setProperty("overflow", `hidden`);
+    //
+    // cellHtmlElement.style.setProperty("outline", `0.5px solid black`);
+    //
+    // cellHtmlElement.style.setProperty("outline-offset", `-0.5px`);
+    //
+    // cellHtmlElement.style.setProperty("justify-content", `center`);
+
     cellHtmlElement.style.setProperty("width", `${globalThis.cellSizes.w}px`);
-  cellHtmlElement &&
+
     cellHtmlElement.style.setProperty("height", `${globalThis.cellSizes.h}px`);
+  }
 };
 
 const drawBoard = ({
@@ -52,6 +54,10 @@ const drawBoard = ({
         );
         const cellParams = population[`${i},${j}`];
         if (cellHtmlElement && cellParams) {
+          cellHtmlElement.onclick = () => {
+            // console.log(cellParams.id);
+            changeCellState(cellParams.id);
+          };
           cellHtmlElement.id = cellParams.id;
           // cellHtmlElement.textContent = cellParams.text;
           paintCell({ cellHtmlElement, cellParams });
@@ -69,7 +75,16 @@ const redrawBoard = () => {
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
-  const toDraw = [...globalThis.lastForecast, ...alives];
+  const toDraw =
+    globalThis.alivesHistory.length >= 1
+      ? [
+          ...globalThis.lastForecast,
+          ...alives,
+          ...globalThis.alivesHistory[
+            globalThis.alivesHistory.length - 2
+          ].split(";"),
+        ].filter(onlyUnique)
+      : [...globalThis.lastForecast, ...alives].filter(onlyUnique);
 
   for (let p = 0; p < toDraw.length; p++) {
     const i = parseInt(toDraw[p].split(",")[0]);

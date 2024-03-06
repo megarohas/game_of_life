@@ -80,7 +80,9 @@ const generateBoard = () => {
   }
 
   setTimeout(() => {
-    for (const cell of globalThis.edem) {
+    for (const cell of globalThis.alivesHistory[
+      globalThis.alivesHistory.length - 1
+    ].split(";")) {
       const id = cell;
       const i = cell.split(",")[0];
       const j = cell.split(",")[1];
@@ -95,49 +97,6 @@ const generateBoard = () => {
     }
   }, 0);
 
-  /*
-  for (let i = 0; i < globalThis.boardHeight / 2; i++) {
-    setTimeout(() => {
-      for (let j = 0; j < globalThis.boardWidth; j++) {
-        const cell = board.appendChild(document.createElement("div"));
-        const id = `${i},${j}`;
-        const cellParams = {
-          i,
-          j,
-          id,
-          text: `(${id})`,
-          state: globalThis.edem.includes(`${i},${j}`),
-          isForecasted: false,
-        };
-        globalThis.population[id] = cellParams;
-        // console.log(i);
-      }
-    }, 0);
-  }
-
-  for (
-    let i = Math.ceil(globalThis.boardHeight / 2);
-    i < globalThis.boardHeight;
-    i++
-  ) {
-    setTimeout(() => {
-      for (let j = 0; j < globalThis.boardWidth; j++) {
-        const cell = board.appendChild(document.createElement("div"));
-        const id = `${i},${j}`;
-        const cellParams = {
-          i,
-          j,
-          id,
-          text: `(${id})`,
-          state: globalThis.edem.includes(`${i},${j}`),
-          isForecasted: false,
-        };
-        globalThis.population[id] = cellParams;
-        // console.log(i);
-      }
-    }, 0);
-  }
-*/
   setTimeout(() => {
     console.timeEnd("generateBoard");
     drawBoard({});
@@ -184,20 +143,25 @@ const move = (direction) => {
 const iterate = () => {
   const tempAlives = [];
   const newPopulation = {};
-
+  // console.log("");
+  // console.time("1");
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
-
+  // console.log("alives", alives);
+  // console.timeEnd("1");
+  // console.time("2");
   let toCheck = alives
     .map((cellCoordinates) => {
-      return getNeighbours(cellCoordinates);
+      return [...getNeighbours(cellCoordinates), cellCoordinates];
     })
     .reduce((arr, e) => {
       return arr.concat(e);
     })
     .filter(onlyUnique);
-
+  // console.log("toCheck", toCheck);
+  // console.timeEnd("2");
+  // console.time("3");
   for (let p = 0; p < toCheck.length; p++) {
     const cell = globalThis.population[toCheck[p]];
     const neighbours = getNeighbours(cell.id);
@@ -229,11 +193,13 @@ const iterate = () => {
     }
   }
   const newAlives = tempAlives.sort().join(";");
-
+  // console.timeEnd("3");
+  // console.time("4");
   for (const newCellId in newPopulation) {
     globalThis.population[newCellId].state = newPopulation[newCellId].state;
   }
-
+  // console.timeEnd("4");
+  // console.time("5");
   if (
     globalThis.alivesHistory.filter(
       (state) =>
@@ -245,7 +211,7 @@ const iterate = () => {
     // alert("game is over, ng is period");
     // return;
   }
-
+  // console.timeEnd("5");
   if (tempAlives.length === 0) {
     stop();
     console.log("game is over, ng is empty");
@@ -276,4 +242,30 @@ const iterateForecast = () => {
     }
   }
   globalThis.lastForecast = [...toCheck];
+};
+
+const changeCellState = (id) => {
+  globalThis.population[id] = {
+    ...globalThis.population[id],
+    state: !globalThis.population[id].state,
+    isForecasted: false,
+  };
+
+  if (globalThis.alivesHistory.length > 0) {
+    // globalThis.alivesHistory last of
+    let lastAlives = globalThis.alivesHistory[
+      globalThis.alivesHistory.length - 1
+    ].split(";");
+    if (lastAlives.includes(id)) {
+      lastAlives = lastAlives.filter((alive) => alive !== id);
+    } else {
+      lastAlives.push(id);
+    }
+    globalThis.alivesHistory[
+      globalThis.alivesHistory.length - 1
+    ] = lastAlives.sort().join(";");
+  }
+
+  drawBoard({});
+  iterateForecast();
 };
