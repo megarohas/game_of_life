@@ -5,11 +5,13 @@ window.onload = () => {
 
   const timer = document.getElementById("timer");
   setInterval(() => {
-    if (globalThis.predictTime > 0) {
+    if (globalThis.predictTime >= 1) {
       globalThis.predictTime = globalThis.predictTime - 1;
     }
-
-    timer.innerHTML = globalThis.predictTime;
+    if (timer.value !== globalThis.predictTime) {
+      timer.value = globalThis.predictTime;
+      timer.innerHTML = `${Math.floor(globalThis.predictTime)} ms`;
+    }
   }, 0);
 };
 

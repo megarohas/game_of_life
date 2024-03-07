@@ -1,3 +1,79 @@
+.main {
+  display: flex;
+}
+
+/* SETTINGS */
+.settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings_field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* width: 15rem; */
+  margin-bottom: 1rem;
+}
+
+.settings_field-title {
+  width: 6rem;
+}
+
+.settings_field-input {
+  width: 4rem;
+}
+
+.settings_button {
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+/* SETTINGS END */
+
+/* BOARD */
+.board_section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.board_controls_wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.board_wrapper {
+  overflow: scroll;
+  background-color: #5a5560;
+  border: 1rem solid white;
+  position: relative;
+}
+.board_section_row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board_timer {
+  position: absolute;
+  z-index: 1;
+  color: white;
+  left: 0.4rem;
+  top: 0.2rem;
+}
+
+.board {
+  display: grid;
+  position: absolute;
+  z-index: 0;
+}
+
 .cell {
   font-size: 5px;
   display: flex;
@@ -13,3 +89,4 @@
   background-color: #faed26 !important;
   /* cursor: pointer; */
 }
+/* BOARD END*/
