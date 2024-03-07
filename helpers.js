@@ -62,3 +62,37 @@ const launchCounter = () => {
     }
   }, 0);
 };
+
+const getNeighbours = (cellCoordinates) => {
+  // the idea is detection coordinates of all (8) cell neighbours
+  const height = globalThis.boardSizes.h;
+  const width = globalThis.boardSizes.w;
+  const i = parseInt(cellCoordinates.split(",")[0]);
+  const j = parseInt(cellCoordinates.split(",")[1]);
+  const cell = population[cellCoordinates];
+
+  // getting coordinates of prevous and next cell in the row or column
+  const preI = i > 0 ? i - 1 : height - 1;
+  const postI = i < height - 1 ? i + 1 : 0;
+  const preJ = j > 0 ? j - 1 : width - 1;
+  const postJ = j < width - 1 ? j + 1 : 0;
+
+  const hNeighbours = [preI, i, postI];
+  const wNeighbours = [preJ, j, postJ];
+
+  if (cell) {
+    const neighbours = [];
+    // going trough the all cells in the neighbour area
+    for (let ii = 0; ii < hNeighbours.length; ii++) {
+      for (let jj = 0; jj < wNeighbours.length; jj++) {
+        if (cell.id !== `${hNeighbours[ii]},${wNeighbours[jj]}`) {
+          neighbours.push(`${hNeighbours[ii]},${wNeighbours[jj]}`);
+        }
+      }
+    }
+    const result = neighbours.filter(onlyUnique);
+    return result;
+  } else {
+    return [];
+  }
+};

@@ -10,12 +10,13 @@ const init = ({ cellSizes, boardSizes, customEdem = undefined }) => {
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
   globalThis.population = {};
+  globalThis.alivesHistory.push(globalThis.edem.sort().join(";"));
+  globalThis.lastForecast = [];
+
   document.getElementById("boardHeight").value = globalThis.boardSizes.h;
   document.getElementById("boardWidth").value = globalThis.boardSizes.w;
   document.getElementById("cellHeight").value = globalThis.cellSizes.h;
   document.getElementById("cellWidth").value = globalThis.cellSizes.w;
-  globalThis.alivesHistory.push(globalThis.edem.sort().join(";"));
-  globalThis.lastForecast = [];
 
   const boardWrapper = document.getElementById("boardWrapper");
   const wrapperWidth = parseInt(boardWrapper.style.width);
@@ -28,35 +29,6 @@ const init = ({ cellSizes, boardSizes, customEdem = undefined }) => {
     h: 0,
     w: 0,
   };
-};
-
-const getNeighbours = (cellCoordinates) => {
-  const height = globalThis.boardSizes.h;
-  const width = globalThis.boardSizes.w;
-  const i = parseInt(cellCoordinates.split(",")[0]);
-  const j = parseInt(cellCoordinates.split(",")[1]);
-  const cell = population[cellCoordinates];
-  const preI = i > 0 ? i - 1 : height - 1;
-  const postI = i < height - 1 ? i + 1 : 0;
-  const preJ = j > 0 ? j - 1 : width - 1;
-  const postJ = j < width - 1 ? j + 1 : 0;
-  const hNeighbours = [preI, i, postI];
-  const wNeighbours = [preJ, j, postJ];
-
-  if (cell) {
-    const neighbours = [];
-    for (let ii = 0; ii < hNeighbours.length; ii++) {
-      for (let jj = 0; jj < wNeighbours.length; jj++) {
-        if (cell.id !== `${hNeighbours[ii]},${wNeighbours[jj]}`) {
-          neighbours.push(`${hNeighbours[ii]},${wNeighbours[jj]}`);
-        }
-      }
-    }
-    const result = neighbours.filter(onlyUnique);
-    return result;
-  } else {
-    return [];
-  }
 };
 
 const generateDefaultBoard = () => {
@@ -96,6 +68,7 @@ const generateBoard = () => {
   const alivesHistory = globalThis.alivesHistory;
 
   for (let i = 0; i < boardSizes.h; i++) {
+    // setTimeout is used to not to block the main page untill the board is generated
     setTimeout(() => {
       for (let j = 0; j < boardSizes.w; j++) {
         const id = `${i},${j}`;
@@ -112,6 +85,7 @@ const generateBoard = () => {
   }
 
   setTimeout(() => {
+    // to not use .includes for every cell (to check state) going throuh the active ones separately
     for (const cell of alivesHistory[alivesHistory.length - 1].split(";")) {
       const id = cell;
       const i = cell.split(",")[0];
@@ -177,8 +151,10 @@ const iterate = () => {
   const alives = alivesHistory[alivesHistory.length - 1].split(";");
   const population = globalThis.population;
 
+  // predictIteration is used to count this iteration prediction and update the html timer
   predictIteration(alives.length);
 
+  // getting all neighbours of all active cells
   let toCheck = alives
     .map((cellCoordinates) => {
       return [...getNeighbours(cellCoordinates), cellCoordinates];
@@ -189,6 +165,7 @@ const iterate = () => {
     .filter(onlyUnique);
 
   for (let p = 0; p < toCheck.length; p++) {
+    // check every neighbour neighbours
     const cell = population[toCheck[p]];
     const neighbours = getNeighbours(cell.id);
     let liveCount = 0;
@@ -199,6 +176,7 @@ const iterate = () => {
       }
     }
 
+    // making live/death decision
     if (cell.state) {
       const state = liveCount === 2 || liveCount === 3;
       if (state) {
@@ -219,8 +197,10 @@ const iterate = () => {
       };
     }
   }
+
   const newAlives = tempAlives.sort().join(";");
 
+  // updating only checking cells
   for (const newCellId in newPopulation) {
     population[newCellId].state = newPopulation[newCellId].state;
   }
@@ -251,6 +231,7 @@ const iterateForecast = () => {
   ].split(";");
   const population = globalThis.population;
 
+  // getting all neighbours of all active cells
   let toCheck = alives
     .map((cellCoordinates) => {
       return getNeighbours(cellCoordinates);

@@ -7,7 +7,8 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
     cellHtmlElement.style.setProperty("height", `${cellSizes.h}px`);
     cellHtmlElement.style.setProperty(
       "background-color",
-      // cellParams.state ? "green" : cellParams.isForecasted ? "grey" : "grey"
+      // use code below to turn off forecast showing
+      // cellParams.state ? "#9d8d8f" : cellParams.isForecasted ? "#5a5560" : "#5a5560"
       cellParams.state
         ? "#9d8d8f"
         : cellParams.isForecasted
@@ -22,19 +23,20 @@ const paintCell = ({ cellHtmlElement, cellParams }) => {
 };
 
 const drawBoard = ({ shouldPrescrollH = false, shouldPrescrollW = false }) => {
+  // only part (frame) of cells are drawen because of preformace and usability issues
   const zeroH = globalThis.frameZero.h;
   const zeroW = globalThis.frameZero.w;
-
   const height = globalThis.frameZero.h + globalThis.frame.h;
   const width = globalThis.frameZero.w + globalThis.frame.w;
-
   const frameH = globalThis.frame.h;
   const frameW = globalThis.frame.w;
 
   const population = globalThis.population;
 
   const board = document.getElementById("board");
+  //clear the board
   board.innerHTML = "";
+  //change styles based on frame sizes
   board.style.setProperty("grid-template-rows", `repeat(${frameH}, 1fr)`);
   board.style.setProperty("grid-template-columns", `repeat(${frameW}, 1fr)`);
 
@@ -71,6 +73,7 @@ const redrawBoard = () => {
       : undefined;
   const lastForecast = globalThis.lastForecast;
 
+  //finding the all cells that should be checked, there is no necessary to redraw all
   let toDraw = previousAlives
     ? [...lastForecast, ...currentAlives, ...previousAlives]
     : [...lastForecast, ...currentAlives];
