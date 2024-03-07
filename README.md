@@ -10,7 +10,7 @@
 - Navigation with mouse;
 - Improvement of time prediction algorythm;
 - Improvement of the UI;
-- Debugging and optimising the core algorythm;
+- Debugging and optimising the core algorythm.
 
 ## HOW TO USE:
 - To use just open the index.html with browser =) 
