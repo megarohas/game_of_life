@@ -1,5 +1,5 @@
-const updateField = (field, value) => {
-  globalThis[field] = value;
+const updateBoardSizes = (dim, value) => {
+  globalThis.boardSizes[dim] = value;
 };
 
 const updateCellSize = (dim, value) => {
@@ -23,30 +23,42 @@ const getRandomInRange = ({ from, to }) => {
 const generateRandomCoordinates = ({ from = 0, to = 100 }) => {
   // const alivePointsAmount = getRandomInRange({ from: 1000, to: 1001 });
   const alivePointsAmount = 1000;
-  // console.log("alivePointsAmount", alivePointsAmount);
   const customEdem = [];
+
   for (let i = 0; i < alivePointsAmount; i++) {
     const h = getRandomInRange({ from: 0, to: 100 });
     const w = getRandomInRange({ from: 0, to: 100 });
-    // console.log(h, w);
     customEdem.push(`${h},${w}`);
   }
+
   return customEdem.filter(onlyUnique);
 };
 
-const getIteratePrediction = (alivesLen) => {
+const predictIteration = (alivesLen) => {
   const startTime = performance.now();
-  console.log("startTime", startTime);
+
   for (let i = 0; i < 100; i++) {
     for (let j = 0; j < 10; j++) {
       getNeighbours(`${i},${j}`);
     }
   }
+
   const endTime = performance.now();
-  console.log("endTime", endTime);
   const clusterTime = endTime - startTime;
-  console.log("clusterTime", clusterTime);
   const predictTime = (clusterTime / 100) * alivesLen * 6;
+
   globalThis.predictTime = predictTime;
-  console.log("predictTime", predictTime);
+};
+
+const launchCounter = () => {
+  const timer = document.getElementById("timer");
+  setInterval(() => {
+    if (globalThis.predictTime >= 1) {
+      globalThis.predictTime = globalThis.predictTime - 1;
+    }
+    if (timer.value !== globalThis.predictTime) {
+      timer.value = globalThis.predictTime;
+      timer.innerHTML = `${Math.floor(globalThis.predictTime)} ms`;
+    }
+  }, 0);
 };

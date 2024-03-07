@@ -1,18 +1,7 @@
 window.onload = () => {
-  // init();
   generateDefaultBoard();
   iterateForecast();
-
-  const timer = document.getElementById("timer");
-  setInterval(() => {
-    if (globalThis.predictTime >= 1) {
-      globalThis.predictTime = globalThis.predictTime - 1;
-    }
-    if (timer.value !== globalThis.predictTime) {
-      timer.value = globalThis.predictTime;
-      timer.innerHTML = `${Math.floor(globalThis.predictTime)} ms`;
-    }
-  }, 0);
+  launchCounter();
 };
 
 const start = () => {
@@ -33,5 +22,4 @@ const start = () => {
 
 const stop = () => {
   clearInterval(globalThis.procIterate);
-  // clearInterval(globalThis.procRedraw);
 };

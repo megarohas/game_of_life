@@ -1,9 +1,8 @@
-const init = ({ customEdem = undefined }) => {
+const init = ({ cellSizes, boardSizes, customEdem = undefined }) => {
   globalThis.predictTime = 0;
   globalThis.moveStep = 10;
-  globalThis.cellSizes = { h: 5, w: 5 };
-  globalThis.boardHeight = 1000;
-  globalThis.boardWidth = 1000;
+  globalThis.cellSizes = cellSizes || { h: 5, w: 5 };
+  globalThis.boardSizes = boardSizes || { h: 1000, w: 1000 };
   globalThis.edem = customEdem
     ? customEdem
     : ["50,49", "50,50", "49,50", "49,51", "49,52", "50,52", "50,53"];
@@ -11,8 +10,8 @@ const init = ({ customEdem = undefined }) => {
   // globalThis.edem = ["3,4", "4,5", "5,5", "5,4", "5,3"]; //cool
   globalThis.alivesHistory = [];
   globalThis.population = {};
-  document.getElementById("boardHeight").value = globalThis.boardHeight;
-  document.getElementById("boardWidth").value = globalThis.boardWidth;
+  document.getElementById("boardHeight").value = globalThis.boardSizes.h;
+  document.getElementById("boardWidth").value = globalThis.boardSizes.w;
   document.getElementById("cellHeight").value = globalThis.cellSizes.h;
   document.getElementById("cellWidth").value = globalThis.cellSizes.w;
   globalThis.alivesHistory.push(globalThis.edem.sort().join(";"));
@@ -31,10 +30,9 @@ const init = ({ customEdem = undefined }) => {
   };
 };
 
-const getNeighbours = (cellCoordinates, number) => {
-  // console.log(`getNeighbours ${number}`);
-  const height = globalThis.boardHeight;
-  const width = globalThis.boardWidth;
+const getNeighbours = (cellCoordinates) => {
+  const height = globalThis.boardSizes.h;
+  const width = globalThis.boardSizes.w;
   const i = parseInt(cellCoordinates.split(",")[0]);
   const j = parseInt(cellCoordinates.split(",")[1]);
   const cell = population[cellCoordinates];
@@ -62,32 +60,46 @@ const getNeighbours = (cellCoordinates, number) => {
 };
 
 const generateDefaultBoard = () => {
+  const cellSizes = globalThis.cellSizes;
+  const boardSizes = globalThis.boardSizes;
+
   stop();
-  init({});
-  generateBoard({});
+  init({
+    cellSizes,
+    boardSizes,
+  });
+  generateBoard();
 };
 
 const generateRandomBoard = () => {
+  const cellSizes = globalThis.cellSizes;
+  const boardSizes = globalThis.boardSizes;
+  const customEdem = generateRandomCoordinates({
+    from: globalThis.frameZero.h,
+    to: globalThis.frame.w,
+  });
+
   stop();
   init({
-    customEdem: generateRandomCoordinates({
-      from: globalThis.frameZero.h,
-      to: globalThis.frame.w,
-    }),
+    cellSizes,
+    boardSizes,
+    customEdem,
   });
   generateBoard();
 };
 
 const generateBoard = () => {
-  globalThis.population = {};
-
   console.time("generateBoard");
+  globalThis.population = {};
+  const population = globalThis.population;
+  const boardSizes = globalThis.boardSizes;
+  const alivesHistory = globalThis.alivesHistory;
 
-  for (let i = 0; i < globalThis.boardHeight; i++) {
+  for (let i = 0; i < boardSizes.h; i++) {
     setTimeout(() => {
-      for (let j = 0; j < globalThis.boardWidth; j++) {
+      for (let j = 0; j < boardSizes.w; j++) {
         const id = `${i},${j}`;
-        globalThis.population[id] = {
+        population[id] = {
           i,
           j,
           id,
@@ -100,13 +112,11 @@ const generateBoard = () => {
   }
 
   setTimeout(() => {
-    for (const cell of globalThis.alivesHistory[
-      globalThis.alivesHistory.length - 1
-    ].split(";")) {
+    for (const cell of alivesHistory[alivesHistory.length - 1].split(";")) {
       const id = cell;
       const i = cell.split(",")[0];
       const j = cell.split(",")[1];
-      globalThis.population[id] = {
+      population[id] = {
         i,
         j,
         id,
@@ -128,70 +138,63 @@ const generateBoard = () => {
 };
 
 const move = (direction) => {
-  // console.log(`move: ${direction}`);
   const moveStep = globalThis.moveStep;
+  const frameZero = globalThis.frameZero;
+  const boardSizes = globalThis.boardSizes;
+
   if (direction === "down") {
-    const newZeroH = globalThis.frameZero.h + moveStep;
-    if (newZeroH <= globalThis.boardHeight) {
-      globalThis.frameZero.h = newZeroH;
-      drawBoard({});
+    const newZeroH = frameZero.h + moveStep;
+    if (newZeroH <= boardSizes.h) {
+      frameZero.h = newZeroH;
     }
   }
   if (direction === "up") {
-    const newZeroH = globalThis.frameZero.h - moveStep;
+    const newZeroH = frameZero.h - moveStep;
     if (newZeroH >= 0) {
-      globalThis.frameZero.h = newZeroH;
-      drawBoard({});
+      frameZero.h = newZeroH;
     }
   }
   if (direction === "right") {
-    const newZeroW = globalThis.frameZero.w + moveStep;
-    if (newZeroW <= globalThis.boardWidth) {
-      globalThis.frameZero.w = newZeroW;
-      drawBoard({});
+    const newZeroW = frameZero.w + moveStep;
+    if (newZeroW <= boardSizes.w) {
+      frameZero.w = newZeroW;
     }
   }
   if (direction === "left") {
-    const newZeroW = globalThis.frameZero.w - moveStep;
+    const newZeroW = frameZero.w - moveStep;
     if (newZeroW >= 0) {
-      globalThis.frameZero.w = newZeroW;
-      drawBoard({});
+      frameZero.w = newZeroW;
     }
   }
+
+  drawBoard({});
 };
 
 const iterate = () => {
   const tempAlives = [];
   const newPopulation = {};
-  console.log("");
+  const alivesHistory = globalThis.alivesHistory;
+  const alives = alivesHistory[alivesHistory.length - 1].split(";");
+  const population = globalThis.population;
 
-  console.time("1");
-  const alives = globalThis.alivesHistory[
-    globalThis.alivesHistory.length - 1
-  ].split(";");
+  predictIteration(alives.length);
 
-  getIteratePrediction(alives.length);
-  // console.log("alives", alives);
-  // console.timeEnd("1");
-  // console.time("2");
   let toCheck = alives
     .map((cellCoordinates) => {
-      return [...getNeighbours(cellCoordinates, 1), cellCoordinates];
+      return [...getNeighbours(cellCoordinates), cellCoordinates];
     })
     .reduce((arr, e) => {
       return arr.concat(e);
     })
     .filter(onlyUnique);
-  // console.log("toCheck", toCheck);
-  // console.log(`alives: ${alives.length}  toCheck: ${toCheck.length}`);
-  // console.timeEnd("2");
-  // console.time("3");
+
   for (let p = 0; p < toCheck.length; p++) {
-    const cell = globalThis.population[toCheck[p]];
-    const neighbours = getNeighbours(cell.id, 2);
+    const cell = population[toCheck[p]];
+    const neighbours = getNeighbours(cell.id);
     let liveCount = 0;
+
     for (let k = 0; k < neighbours.length; k++) {
-      if (globalThis.population[neighbours[k]].state) {
+      if (population[neighbours[k]].state) {
         liveCount++;
       }
     }
@@ -217,26 +220,21 @@ const iterate = () => {
     }
   }
   const newAlives = tempAlives.sort().join(";");
-  // console.timeEnd("3");
-  // console.time("4");
+
   for (const newCellId in newPopulation) {
-    globalThis.population[newCellId].state = newPopulation[newCellId].state;
+    population[newCellId].state = newPopulation[newCellId].state;
   }
-  // console.timeEnd("4");
-  // console.time("5");
+
   if (
-    globalThis.alivesHistory.filter(
-      (state) =>
-        state === globalThis.alivesHistory[globalThis.alivesHistory.length - 1]
+    alivesHistory.filter(
+      (state) => state === alivesHistory[alivesHistory.length - 1]
     ).length > 1
   ) {
     stop();
     console.log("game is over, ng is period");
-    // console.log("newAlives", newAlives.split(";"));
     // alert("game is over, ng is period");
     return;
   }
-  // console.timeEnd("5");
   if (tempAlives.length === 0) {
     stop();
     console.log("game is over, ng is empty");
@@ -244,16 +242,15 @@ const iterate = () => {
     return;
   }
 
-  globalThis.alivesHistory.push(newAlives);
-  console.timeEnd("1");
+  alivesHistory.push(newAlives);
 };
 
 const iterateForecast = () => {
   const alives = globalThis.alivesHistory[
     globalThis.alivesHistory.length - 1
   ].split(";");
+  const population = globalThis.population;
 
-  // console.log("alives", alives);
   let toCheck = alives
     .map((cellCoordinates) => {
       return getNeighbours(cellCoordinates);
@@ -263,36 +260,34 @@ const iterateForecast = () => {
     })
     .filter(onlyUnique);
 
-  // console.log("toCheck", toCheck);
   for (let p = 0; p < toCheck.length; p++) {
     if (!alives.includes(toCheck[p])) {
-      globalThis.population[toCheck[p]].isForecasted = true;
+      population[toCheck[p]].isForecasted = true;
     }
   }
+
   globalThis.lastForecast = [...toCheck];
 };
 
 const changeCellState = (id) => {
-  // console.log(`id: ${id}`);
-  globalThis.population[id] = {
-    ...globalThis.population[id],
-    state: !globalThis.population[id].state,
+  const population = globalThis.population;
+  const alivesHistory = globalThis.alivesHistory;
+
+  population[id] = {
+    ...population[id],
+    state: !population[id].state,
     isForecasted: false,
   };
 
-  if (globalThis.alivesHistory.length > 0) {
-    // globalThis.alivesHistory last of
-    let lastAlives = globalThis.alivesHistory[
-      globalThis.alivesHistory.length - 1
-    ].split(";");
+  if (alivesHistory.length > 0) {
+    let lastAlives = alivesHistory[alivesHistory.length - 1].split(";");
+
     if (lastAlives.includes(id)) {
       lastAlives = lastAlives.filter((alive) => alive !== id);
     } else {
       lastAlives.push(id);
     }
-    globalThis.alivesHistory[
-      globalThis.alivesHistory.length - 1
-    ] = lastAlives.sort().join(";");
+    alivesHistory[alivesHistory.length - 1] = lastAlives.sort().join(";");
   }
 
   const cellHtmlElement = document.getElementById(id);
